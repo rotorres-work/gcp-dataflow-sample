@@ -1,0 +1,148 @@
+{
+    "name": "azure-sqldb-to-gcs-v1",
+    "description": "Data Pipeline Application",
+    "artifact": {
+        "name": "cdap-data-pipeline",
+        "version": "6.2.0",
+        "scope": "SYSTEM"
+    },
+    "config": {
+        "resources": {
+            "memoryMB": 2048,
+            "virtualCores": 1
+        },
+        "driverResources": {
+            "memoryMB": 2048,
+            "virtualCores": 1
+        },
+        "connections": [
+            {
+                "from": "SQL-Server",
+                "to": "GCS"
+            },
+            {
+                "from": "SQL-Server",
+                "to": "BigQuery"
+            }
+        ],
+        "comments": [],
+        "postActions": [],
+        "properties": {},
+        "processTimingEnabled": true,
+        "stageLoggingEnabled": false,
+        "stages": [
+            {
+                "name": "SQL-Server",
+                "plugin": {
+                    "name": "SqlServer",
+                    "type": "batchsource",
+                    "label": "SQL Server",
+                    "artifact": {
+                        "name": "mssql-plugin",
+                        "version": "1.4.1",
+                        "scope": "USER"
+                    },
+                    "properties": {
+                        "jdbcPluginName": "sqlserver42",
+                        "host": "exadoc.database.windows.net",
+                        "port": "1433",
+                        "numSplits": "1",
+                        "authentication": "SQL Login",
+                        "queryTimeout": "-1",
+                        "loginTimeout": "0",
+                        "columnEncryptionSetting": "false",
+                        "encrypt": "false",
+                        "trustServerCertificate": "false",
+                        "packetSize": "-1",
+                        "user": "rotorres",
+                        "password": "R83ef042@",
+                        "referenceName": "azure-sqldb-sample",
+                        "database": "exadocdb",
+                        "importQuery": "Select * from SalesLT.Customer",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"CustomerID\",\"type\":[\"int\",\"null\"]},{\"name\":\"NameStyle\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"Title\",\"type\":[\"string\",\"null\"]},{\"name\":\"FirstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"MiddleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Suffix\",\"type\":[\"string\",\"null\"]},{\"name\":\"CompanyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SalesPerson\",\"type\":[\"string\",\"null\"]},{\"name\":\"EmailAddress\",\"type\":[\"string\",\"null\"]},{\"name\":\"Phone\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordHash\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordSalt\",\"type\":[\"string\",\"null\"]},{\"name\":\"rowguid\",\"type\":[\"string\",\"null\"]},{\"name\":\"ModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"CustomerID\",\"type\":[\"int\",\"null\"]},{\"name\":\"NameStyle\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"Title\",\"type\":[\"string\",\"null\"]},{\"name\":\"FirstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"MiddleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Suffix\",\"type\":[\"string\",\"null\"]},{\"name\":\"CompanyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SalesPerson\",\"type\":[\"string\",\"null\"]},{\"name\":\"EmailAddress\",\"type\":[\"string\",\"null\"]},{\"name\":\"Phone\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordHash\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordSalt\",\"type\":[\"string\",\"null\"]},{\"name\":\"rowguid\",\"type\":[\"string\",\"null\"]},{\"name\":\"ModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}"
+                    }
+                ]
+            },
+            {
+                "name": "GCS",
+                "plugin": {
+                    "name": "GCS",
+                    "type": "batchsink",
+                    "label": "GCS",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.15.0",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "project": "auto-detect",
+                        "suffix": "yyyy-MM-dd-HH-mm",
+                        "format": "avro",
+                        "serviceFilePath": "auto-detect",
+                        "location": "us",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"CustomerID\",\"type\":[\"int\",\"null\"]},{\"name\":\"NameStyle\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"Title\",\"type\":[\"string\",\"null\"]},{\"name\":\"FirstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"MiddleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Suffix\",\"type\":[\"string\",\"null\"]},{\"name\":\"CompanyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SalesPerson\",\"type\":[\"string\",\"null\"]},{\"name\":\"EmailAddress\",\"type\":[\"string\",\"null\"]},{\"name\":\"Phone\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordHash\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordSalt\",\"type\":[\"string\",\"null\"]},{\"name\":\"rowguid\",\"type\":[\"string\",\"null\"]},{\"name\":\"ModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}",
+                        "referenceName": "rotorres-datafusion-sink-bucket",
+                        "path": "gs://rotorres-datafusion-sink/azure-sqldb-sample/customer"
+                    }
+                },
+                "outputSchema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"CustomerID\",\"type\":[\"int\",\"null\"]},{\"name\":\"NameStyle\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"Title\",\"type\":[\"string\",\"null\"]},{\"name\":\"FirstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"MiddleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Suffix\",\"type\":[\"string\",\"null\"]},{\"name\":\"CompanyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SalesPerson\",\"type\":[\"string\",\"null\"]},{\"name\":\"EmailAddress\",\"type\":[\"string\",\"null\"]},{\"name\":\"Phone\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordHash\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordSalt\",\"type\":[\"string\",\"null\"]},{\"name\":\"rowguid\",\"type\":[\"string\",\"null\"]},{\"name\":\"ModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}",
+                "inputSchema": [
+                    {
+                        "name": "SQL Server",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"CustomerID\",\"type\":\"int\"},{\"name\":\"NameStyle\",\"type\":\"boolean\"},{\"name\":\"Title\",\"type\":[\"string\",\"null\"]},{\"name\":\"FirstName\",\"type\":\"string\"},{\"name\":\"MiddleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastName\",\"type\":\"string\"},{\"name\":\"Suffix\",\"type\":[\"string\",\"null\"]},{\"name\":\"CompanyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SalesPerson\",\"type\":[\"string\",\"null\"]},{\"name\":\"EmailAddress\",\"type\":[\"string\",\"null\"]},{\"name\":\"Phone\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordHash\",\"type\":\"string\"},{\"name\":\"PasswordSalt\",\"type\":\"string\"},{\"name\":\"rowguid\",\"type\":\"string\"},{\"name\":\"ModifiedDate\",\"type\":{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"}}]}"
+                    }
+                ]
+            },
+            {
+                "name": "BigQuery",
+                "plugin": {
+                    "name": "BigQueryTable",
+                    "type": "batchsink",
+                    "label": "BigQuery",
+                    "artifact": {
+                        "name": "google-cloud",
+                        "version": "0.15.0",
+                        "scope": "SYSTEM"
+                    },
+                    "properties": {
+                        "project": "auto-detect",
+                        "serviceFilePath": "auto-detect",
+                        "operation": "insert",
+                        "truncateTable": "false",
+                        "allowSchemaRelaxation": "true",
+                        "location": "US",
+                        "createPartitionedTable": "false",
+                        "partitionFilterRequired": "false",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"CustomerID\",\"type\":[\"int\",\"null\"]},{\"name\":\"NameStyle\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"Title\",\"type\":[\"string\",\"null\"]},{\"name\":\"FirstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"MiddleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Suffix\",\"type\":[\"string\",\"null\"]},{\"name\":\"CompanyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SalesPerson\",\"type\":[\"string\",\"null\"]},{\"name\":\"EmailAddress\",\"type\":[\"string\",\"null\"]},{\"name\":\"Phone\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordHash\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordSalt\",\"type\":[\"string\",\"null\"]},{\"name\":\"rowguid\",\"type\":[\"string\",\"null\"]},{\"name\":\"ModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}",
+                        "referenceName": "bq-customer",
+                        "dataset": "rotorres_sqldb_sample",
+                        "table": "Customer"
+                    }
+                },
+                "outputSchema": [
+                    {
+                        "name": "etlSchemaBody",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"CustomerID\",\"type\":[\"int\",\"null\"]},{\"name\":\"NameStyle\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"Title\",\"type\":[\"string\",\"null\"]},{\"name\":\"FirstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"MiddleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Suffix\",\"type\":[\"string\",\"null\"]},{\"name\":\"CompanyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SalesPerson\",\"type\":[\"string\",\"null\"]},{\"name\":\"EmailAddress\",\"type\":[\"string\",\"null\"]},{\"name\":\"Phone\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordHash\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordSalt\",\"type\":[\"string\",\"null\"]},{\"name\":\"rowguid\",\"type\":[\"string\",\"null\"]},{\"name\":\"ModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}"
+                    }
+                ],
+                "inputSchema": [
+                    {
+                        "name": "SQL Server",
+                        "schema": "{\"type\":\"record\",\"name\":\"etlSchemaBody\",\"fields\":[{\"name\":\"CustomerID\",\"type\":[\"int\",\"null\"]},{\"name\":\"NameStyle\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"Title\",\"type\":[\"string\",\"null\"]},{\"name\":\"FirstName\",\"type\":[\"string\",\"null\"]},{\"name\":\"MiddleName\",\"type\":[\"string\",\"null\"]},{\"name\":\"LastName\",\"type\":[\"string\",\"null\"]},{\"name\":\"Suffix\",\"type\":[\"string\",\"null\"]},{\"name\":\"CompanyName\",\"type\":[\"string\",\"null\"]},{\"name\":\"SalesPerson\",\"type\":[\"string\",\"null\"]},{\"name\":\"EmailAddress\",\"type\":[\"string\",\"null\"]},{\"name\":\"Phone\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordHash\",\"type\":[\"string\",\"null\"]},{\"name\":\"PasswordSalt\",\"type\":[\"string\",\"null\"]},{\"name\":\"rowguid\",\"type\":[\"string\",\"null\"]},{\"name\":\"ModifiedDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]}]}"
+                    }
+                ]
+            }
+        ],
+        "schedule": "0 * * * *",
+        "engine": "spark",
+        "numOfRecordsPreview": 100,
+        "description": "Data Pipeline Application",
+        "maxConcurrentRuns": 1
+    }
+}
